@@ -6,4 +6,4 @@ ___
 ## Github
     git init
     git remote add origin https://github.com/NNNewwear/DatabaseProject
-    git branch -M main
+    git branch -m main
