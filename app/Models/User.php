@@ -49,4 +49,26 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function cards()
+    {
+        return $this->hasMany(Card::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(OrderHeader::class, 'user_id');
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class, 'user_id');
+    }
+
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')
+                    ->withPivot('wishlist_date')
+                    ->withTimestamps();
+    }
 }
