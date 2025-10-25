@@ -12,7 +12,8 @@ class OrderDetailController extends Controller
      */
     public function index()
     {
-        //
+        $details = OrderDetail::with(['order', 'product'])->get();
+        return view('orderdetails.index', compact('details'));
     }
 
     /**
@@ -60,6 +61,7 @@ class OrderDetailController extends Controller
      */
     public function destroy(OrderDetail $orderDetail)
     {
-        //
+        $detail->delete();
+        return redirect()->route('orderdetails.index')->with('success', 'Order deleted.');
     }
 }

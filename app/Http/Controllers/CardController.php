@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Card;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CardController extends Controller
 {
@@ -12,7 +13,8 @@ class CardController extends Controller
      */
     public function index()
     {
-        //
+        $cards = Card::where('user_id', Auth::id())->get();
+        return view('cards.index', compact('cards'));
     }
 
     /**
@@ -20,7 +22,18 @@ class CardController extends Controller
      */
     public function create()
     {
-        //
+        $request->validate([
+            'card_no' => 'required|string|max:20',
+            'expire_date' => 'required|date',
+        ]);
+
+        Card::create([
+            'user_id' => Auth::id(),
+            'card_no' => $request->card_no,
+            'expire_date' => $request->expire_date,
+        ]);
+
+        return redirect()->route('cards.index')->with('success', 'Card created successfully.');
     }
 
     /**
@@ -60,6 +73,9 @@ class CardController extends Controller
      */
     public function destroy(Card $card)
     {
-        //
+        if ($card->user_id != Auth::id()) abort(403);
+        $card->delete();
+
+        return redirect()->route('cards.index')->with('success', 'Card deleted.');
     }
 }
