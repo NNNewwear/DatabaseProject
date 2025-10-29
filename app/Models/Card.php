@@ -9,6 +9,10 @@ class Card extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'card_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'user_id',
         'expire_date',
@@ -24,5 +28,10 @@ class Card extends Model
     public function orders()
     {
         return $this->hasMany(OrderHeader::class, 'card_id');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'card_id';
     }
 }

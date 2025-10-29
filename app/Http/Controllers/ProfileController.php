@@ -2,52 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rule;
 
-class ProfileController extends Controller
-{
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+
+class ProfileController extends Controller{
+
+    public function editImage()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+    $user = \Illuminate\Support\Facades\Auth::user();
+    return view('profile.image', compact('user'));
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function updateImage(Request $request)
     {
-        $request->user()->fill($request->validated());
+    $user = \Illuminate\Support\Facades\Auth::user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+    $data = $request->validate([
+        'profile_image' => ['required', \Illuminate\Validation\Rules\File::image()->max(5 * 1024)],
+    ]);
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    if ($request->hasFile('profile_image')) {
+        $data['profile_image_path'] = $request->file('profile_image')->store('profile', 'public');
+        $user->update($data);
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    return redirect()->route('profile.show')->with('success', 'Profile image updated.');
+    }
+
+    public function show(){
+        $user = Auth::user();
+        $cards = \App\Models\Card::where('user_id', $user->id)->get();
+
+        return view('profile.show', compact('user', 'cards'));
+    }
+
+
+    public function edit()
+    {
+        return view('profile.edit', ['user' => Auth::user()]);
+    }
+
+    // app/Http/Controllers/ProfileController.php (เฉพาะเมธอด update)
+    public function update(Request $request){
+    $user = Auth::user();
+
+    // validate ให้ตรงกับฟอร์ม edit (firstname/lastname)
+    $data = $request->validate([
+        'firstname' => ['nullable', 'string', 'max:255'],
+        'lastname'  => ['nullable', 'string', 'max:255'],
+        'username'  => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
+        'email'     => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+        'phone'     => ['nullable', 'string', 'max:50'],
+        'address'   => ['nullable', 'string', 'max:500'],
+        'password'  => ['nullable', 'confirmed', 'min:8'], // กรอกเมื่ออยากเปลี่ยนเท่านั้น
+        // ไม่ต้องรับ profile_image ที่นี่แล้ว เพราะไปอยู่ที่ updateImage()
+    ]);
+
+    // ถ้าไม่ได้ส่งรหัสผ่านมา ไม่ต้องแตะฟิลด์นี้
+    if ($request->filled('password')) {
+        // ถ้าโมเดล User มี casts ['password' => 'hashed'] จะถูกแฮชให้อัตโนมัติ
+        $data['password'] = $request->password;
+    } else {
+        unset($data['password']);
+    }
+
+    $user->update($data);
+
+    return redirect()->route('profile.show')->with('success', 'บันทึกโปรไฟล์แล้ว');
+    }
+
+
+    // (ถ้าใช้ Breeze จะมี destroy อยู่แล้ว; คงไว้ได้)
+    public function destroy(Request $request)
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
-
         Auth::logout();
 
         $user->delete();
@@ -55,6 +90,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect('/');
     }
 }

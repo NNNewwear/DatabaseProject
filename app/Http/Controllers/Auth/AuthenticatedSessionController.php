@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,14 +23,34 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+    
+public function store(Request $request)
+{
+    $credentials = $request->validate([
+        'login'    => ['required','string'],  // รับ username หรือ email
+        'password' => ['required','string'],
+    ]);
 
-        $request->session()->regenerate();
+    $loginField = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL)
+        ? 'email'
+        : 'username';
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    $attempt = Auth::attempt(
+        [$loginField => $credentials['login'], 'password' => $credentials['password']],
+        $request->boolean('remember')
+    );
+
+    if (! $attempt) {
+        throw ValidationException::withMessages([
+            'login' => __('auth.failed'),
+        ]);
     }
+
+    $request->session()->regenerate();
+
+    // กลับไปหน้าที่ตั้งใจ หรือไปโปรไฟล์
+    return redirect()->intended(route('profile.show'));
+}
 
     /**
      * Destroy an authenticated session.

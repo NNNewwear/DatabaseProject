@@ -1,80 +1,72 @@
+{{-- resources/views/auth/register.blade.php --}}
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+  <div class="mx-auto w-full max-w-6xl px-6">
 
-        <!-- Firstname -->
-        <div>
-            <x-input-label for="firstname" :value="__('firstname')" />
-            <x-text-input id="firstname" class="block mt-1 w-full" type="text" name="firstname" :value="old('firstname')" required autofocus autocomplete="firstname" />
-            <x-input-error :messages="$errors->get('firstname')" class="mt-2" />
-        </div>
+    <h1 class="text-2xl md:text-3xl font-semibold mb-6">Create an Account</h1>
 
-        <!-- Lastname -->
-        <div>
-            <x-input-label for="lastname" :value="__('lastname')" />
-            <x-text-input id="lastname" class="block mt-1 w-full" type="text" name="lastname" :value="old('lastname')" required autofocus autocomplete="lastname" />
-            <x-input-error :messages="$errors->get('lastname')" class="mt-2" />
-        </div>
+    {{-- Errors --}}
+    @if ($errors->any())
+      <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+        {{ $errors->first() }}
+      </div>
+    @endif
 
-        <!-- Username -->
-        <div>
-            <x-input-label for="username" :value="__('username')" />
-            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
-        </div>
+    <form method="POST" action="{{ route('register') }}"
+          class="rounded-2xl bg-[#e6f3ff] p-6 md:p-8 shadow-sm">
+      @csrf
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+      {{-- แถว 1: First / Last --}}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" name="firstname" placeholder="Firstname"
+               value="{{ old('firstname') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
 
-        <!-- Phone -->
-        <div>
-            <x-input-label for="phone" :value="__('phone')" />
-            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" required autofocus autocomplete="phone" />
-            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
-        </div>
+        <input type="text" name="lastname" placeholder="Lastname"
+               value="{{ old('lastname') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
+      </div>
 
-        <!-- Address -->
-        <div>
-            <x-input-label for="address" :value="__('address')" />
-            <x-text-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')" required autofocus autocomplete="address" />
-            <x-input-error :messages="$errors->get('address')" class="mt-2" />
-        </div>
+      {{-- แถว 2: Username / Phone --}}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <input type="text" name="username" placeholder="Username"
+               value="{{ old('username') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <input type="text" name="phone" placeholder="Phone"
+               value="{{ old('phone') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200">
+      </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+      {{-- แถว 3: Email / (ว่างไว้ให้สมดุล) --}}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <input type="email" name="email" placeholder="Email"
+               value="{{ old('email') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
+        <div></div>
+      </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+      {{-- แถว 4: Password / Confirm --}}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <input type="password" name="password" placeholder="Password"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <input type="password" name="password_confirmation" placeholder="Confirmpassword"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" required>
+      </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+      {{-- แถว 5: Address (เต็มแถว) --}}
+      <div class="mt-4">
+        <input type="text" name="address" placeholder="Address"
+               value="{{ old('address') }}"
+               class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200">
+      </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
+      <div class="mt-6 flex justify-end">
+        <button type="submit"
+                class="rounded-xl bg-[#34C759] hover:bg-[#2aa94a] px-6 py-2 text-white font-semibold">
+          Create an account
+        </button>
+      </div>
     </form>
+  </div>
 </x-guest-layout>
