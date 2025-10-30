@@ -1,8 +1,8 @@
 <x-app-layout>
 <div class="mx-auto max-w-6xl px-4">
-  <h1 class="text-2xl font-semibold mb-4">Products</h1>
+  <!-- <h1 class="text-2xl font-semibold mb-4">Products</h1> -->
 
-  <form method="GET" class="mb-6 flex flex-col md:flex-row gap-3">
+  <!-- <form method="GET" class="mb-6 flex flex-col md:flex-row gap-3">
     <input name="search" value="{{ request('search') }}" placeholder="ค้นหาสินค้า..."
            class="w-full md:w-72 rounded-xl border px-3 py-2">
     <select name="category_id" class="w-full md:w-56 rounded-xl border px-3 py-2">
@@ -12,7 +12,7 @@
       @endforeach
     </select>
     <button class="rounded-xl px-4 py-2 bg-gray-900 text-white">ค้นหา</button>
-  </form>
+  </form> -->
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     @foreach($products as $p)

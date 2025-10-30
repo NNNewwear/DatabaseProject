@@ -9,6 +9,8 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'product_id';
+
     protected $fillable = [
         'category_id',
         'name',
@@ -21,7 +23,7 @@ class Product extends Model
     // --- Relationships ---
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
     public function orderDetails()
