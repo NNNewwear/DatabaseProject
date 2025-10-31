@@ -3,7 +3,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="{{ $product->image_url ? '' : 'bg-[#dfeefb]' }} rounded-2xl overflow-hidden border">
       @if($product->image_url)
-        <img src="{{ $product->image_url }}" class="w-full h-full object-cover">
+        <img src="{{ asset('storage/' . $product->image_url) }}" class="w-full h-full object-cover" alt="{{ $product->name }}">
       @endif
     </div>
     <div>
