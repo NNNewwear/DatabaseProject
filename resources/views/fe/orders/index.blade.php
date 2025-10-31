@@ -15,6 +15,16 @@
   @empty
     <div class="rounded-2xl border bg-white p-6 text-gray-500">ยังไม่มีคำสั่งซื้อ</div>
   @endforelse
+  
+  <form action="{{ route('orders.checkout') }}" method="POST">
+    @csrf
+    <select name="order_method" class="border rounded px-3 py-2">
+      <option value="cod">เก็บเงินปลายทาง</option>
+      <option value="bank">โอนเงิน</option>
+      <option value="card">บัตรเครดิต</option>
+    </select>
+    <button class="rounded-xl border px-4 py-2">ยืนยันสั่งซื้อ</button>
+  </form>
 
   <div class="mt-6">{{ $orders->links() }}</div>
 </div>

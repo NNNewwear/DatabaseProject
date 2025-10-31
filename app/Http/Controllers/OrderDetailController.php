@@ -2,66 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OrderDetail;
-use Illuminate\Http\Request;
+use App\Models\OrderHeader;
+use Illuminate\Support\Facades\Auth;
 
 class OrderDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(OrderHeader $order)
     {
-        $details = OrderDetail::with(['order', 'product'])->get();
-        return view('orderdetails.index', compact('details'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrderDetail $orderDetail)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrderDetail $orderDetail)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrderDetail $orderDetail)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrderDetail $orderDetail)
-    {
-        $detail->delete();
-        return redirect()->route('orderdetails.index')->with('success', 'Order deleted.');
+        abort_if($order->user_id !== Auth::id(), 403);
+        $details = $order->details()->with('product')->get();
+        return view('orders.details', compact('order','details'));
     }
 }
