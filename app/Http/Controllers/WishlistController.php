@@ -14,7 +14,7 @@ class WishlistController extends Controller
      */
     public function index()
     {
-        $wishlists = Wishlist::where('user_id', Auth::id())->with('product')->get();
+        $wishlists = Wishlist::where('user_id', Auth::id())->get();
         return view('wishlist.index', compact('wishlists'));
     }
 
@@ -36,7 +36,14 @@ class WishlistController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $productId = (int) $request->input('product_id');
+
+        Wishlist::updateOrCreate(
+            ['user_id' => Auth::id(), 'product_id' => $productId],
+            ['wishlist_date' => now()]
+        );
+
+        return back()->with('success', 'Added to wishlist');
     }
 
     /**
@@ -66,10 +73,10 @@ class WishlistController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Wishlist $wishlist)
+    public function destroy(Product $product)
     {
         Wishlist::where('user_id', Auth::id())
-                ->where('product_id', $product->id)
+                ->where('product_id', $product->product_id)
                 ->delete();
 
         return redirect()->back()->with('success', 'Wishlist deleted.');

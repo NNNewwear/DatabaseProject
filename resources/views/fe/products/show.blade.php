@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="mx-auto max-w-6xl px-4">
+<div class="mx-auto max-w-6xl px-4 mt-8">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="{{ $product->image_url ? '' : 'bg-[#dfeefb]' }} rounded-2xl overflow-hidden border">
       @if($product->image_url)
@@ -17,13 +17,13 @@
           @if($inWishlist)
             <form method="POST" action="{{ route('wishlist.destroy', $product->product_id) }}">
               @csrf @method('DELETE')
-              <button class="rounded-xl border px-4 py-2">♥ Saved</button>
+              <button class="rounded-xl border px-4 py-2"><span style="font-size: 48px">♥</span></button>
             </form>
           @else
             <form method="POST" action="{{ route('wishlist.store') }}">
               @csrf
               <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-              <button class="rounded-xl border px-4 py-2">♡ Wishlist</button>
+              <button class="rounded-xl border px-4 py-2"><span style="font-size: 48px">♡</button>
             </form>
           @endif
         </div>

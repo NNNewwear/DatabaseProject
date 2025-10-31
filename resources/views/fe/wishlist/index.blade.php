@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="mx-auto max-w-6xl px-4">
+<div class="mx-auto max-w-6xl px-4 mt-6">
   <h1 class="text-xl font-semibold mb-4">Wishlist</h1>
 
   @if($items->isEmpty())
@@ -9,8 +9,8 @@
       @foreach($items as $w)
         <div class="rounded-2xl border bg-white p-3 flex gap-3">
           <div class="w-32 h-24 rounded-xl overflow-hidden {{ $w->product->image_url ? '' : 'bg-[#dfeefb]' }}">
-            @if($w->product->image_url)
-              <img src="{{ $w->product->image_url }}" class="w-full h-full object-cover">
+            @if(optional($w->product)->image_url)
+              <img src="{{ asset('storage/' . $w->product->image_url) }}" alt="{{ $w->product->name ?? '' }}" class="w-full h-full object-cover">
             @endif
           </div>
           <div class="flex-1">

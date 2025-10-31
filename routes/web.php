@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('orders', OrderController::class)->only(['index','show','store']);
     Route::resource('orderdetails', OrderDetailController::class)->only(['index','destroy']);
     Route::resource('products', ProductController::class); // เดิม (ต้องล็อกอิน)
-    Route::resource('wishlist', WishlistController::class)->only(['index','store','destroy']);
+    Route::resource('wishlist', WishlistController::class)->only(['index','store','destroy'])->parameters(['wishlist' => 'product']);;
 });
 
 require __DIR__.'/auth.php';

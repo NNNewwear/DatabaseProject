@@ -42,4 +42,9 @@ class Product extends Model
                     ->withPivot('wishlist_date')
                     ->withTimestamps();
     }
+
+    public function getRouteKeyName() 
+    {
+        return 'product_id';
+    }
 }
