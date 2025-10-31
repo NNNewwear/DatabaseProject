@@ -4,7 +4,7 @@
   <div class="w-full h-[10vh] min-h-[72px] max-h-[120px] px-[4vw] flex items-center justify-between">
 
     {{-- ซ้าย: โลโก้ (สเกลตามความสูงจอ) --}}
-    <a href="{{ route('fe.products') }}" class="flex items-center gap-2">
+    <a href="{{ route('homepage') }}" class="flex items-center gap-2">
       <img src="{{ asset('images/logo.png') }}" alt="Logo"
            class="h-[6vh] max-h-[48px] w-auto" />
     </a>
@@ -13,7 +13,7 @@
     <div class="flex items-center gap-[2vw]">
 
       {{-- ช่องค้นหา --}}
-      <form method="GET" action="{{ route('fe.products') }}" class="flex items-center">
+      <form method="GET" action="{{ route('fe.products.index') }}" class="flex items-center">
         <div class="relative">
           <input type="text" name="search" placeholder="Search..."
                  value="{{ request('search') }}"

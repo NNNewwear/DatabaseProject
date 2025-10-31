@@ -21,13 +21,9 @@ use App\Models\OrderHeader;
 
 // ====== หน้าเริ่มต้นของโปรเจกต์ (คงไว้ตามเดิม) ======
 Route::get('/', function () {
-    return view('welcome');
-});
-
-// ====== Dashboard (ตามเดิม) ======
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    $categories = Category::select('category_id','name')->orderBy('category_id')->get();
+    return view('homepage', compact('categories'));
+})->name('homepage');
 
 // ====== FE ROUTES (ไม่แตะ controller เดิม, ใช้ชื่อเส้นทางขึ้นต้น fe.*) ======
 
@@ -41,7 +37,7 @@ Route::get('/fe/products', function () {
 
     $products = $q->paginate(12)->withQueryString();
     return view('fe.products.index', compact('products','categories'));
-})->name('fe.products');
+})->name('fe.products.index');
 
 // Product Detail (public)
 Route::get('/fe/products/{id}', function ($id) {
