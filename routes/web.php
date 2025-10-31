@@ -69,20 +69,24 @@ Route::middleware('auth')->get('/fe/orders', function () {
     return view('fe.orders.index', compact('orders'));
 })->name('fe.orders');
 
-// ====== ROUTES เดิมของโปรเจกต์ (คงโครงเดิม, เพิ่ม use ให้ครบ) ======
-Route::middleware('auth')->group(function () {
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/profile/image', [ProfileController::class, 'editImage'])->name('profile.image');
-    Route::post('/profile/image', [ProfileController::class, 'updateImage'])->name('profile.image.update');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::resource('posts', PostController::class);
 
-    // Resources ที่ไม่ชนชื่อ
-    Route::resource('cards', CardController::class)->only(['index','store','destroy']);
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show'); 
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); 
+    Route::get('/profile/image', [ProfileController::class, 'editImage'])->name('profile.image');
+    Route::post('/profile/image', [ProfileController::class, 'updateImage'])->name('profile.image.update'); 
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); 
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); 
+    Route::resource('cards', CardController::class)->only(['index','store','destroy']); 
     Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::resource('products', ProductController::class);
+    
+    Route::resource('products', ProductController::class); // เดิม (ต้องล็อกอิน)
 
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
