@@ -83,7 +83,28 @@ Route::middleware('auth')->group(function () {
     Route::resource('orders', OrderController::class)->only(['index','show','store']);
     Route::resource('orderdetails', OrderDetailController::class)->only(['index','destroy']);
     Route::resource('products', ProductController::class); // เดิม (ต้องล็อกอิน)
-    Route::resource('wishlist', WishlistController::class)->only(['index','store','destroy']);
+    /*Route::resource('wishlist', WishlistController::class)->only(['index','store','destroy']);*/
+
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
+    // Order = ตะกร้า
+    Route::get('/order', [OrderController::class, 'index'])->name('orders.cart');
+    Route::post('/order/add/{product}', [OrderController::class, 'addProduct'])->name('orders.add');
+    Route::patch('/order/update/{detail}', [OrderController::class, 'updateProduct'])->name('orders.update');
+    Route::delete('/order/remove/{detail}', [OrderController::class, 'removeProduct'])->name('orders.remove');
+
+    // Checkout
+    Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
+
+    // ประวัติคำสั่งซื้อ
+    Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // รายการสินค้าในออเดอร์
+    Route::get('/orders/{order}/details', [OrderDetailController::class, 'index'])->name('orders.details');
+    
 });
 
 require __DIR__.'/auth.php';

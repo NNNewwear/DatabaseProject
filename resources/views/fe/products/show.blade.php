@@ -26,7 +26,13 @@
               <button class="rounded-xl border px-4 py-2">♡ Wishlist</button>
             </form>
           @endif
+          <form action="{{ route('orders.add', $product) }}" method="POST">
+            @csrf
+            <input type="number" name="qty" value="1" min="1" class="w-16 border rounded px-2 py-1">
+            <button class="rounded-xl border px-4 py-2">เพิ่มลงตะกร้า</button>
+          </form>
         </div>
+        
       @else
         <a href="{{ route('login') }}" class="rounded-xl border px-4 py-2">Login เพื่อบันทึก</a>
       @endauth

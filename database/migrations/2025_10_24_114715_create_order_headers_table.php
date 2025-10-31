@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('card_id')->nullable()->references('card_id')->on('cards')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->dateTime('order_date');
-            $table->string('order_method');
+            $table->string('order_method')->default('card')->nullable(false)->change();
             $table->string('status');
             $table->decimal('total_price', 10, 2);
             $table->timestamps();

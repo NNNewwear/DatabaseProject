@@ -2,76 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use App\Models\Product;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
+
     public function index()
     {
-        $wishlists = Wishlist::where('user_id', Auth::id())->with('product')->get();
+        $wishlists = Wishlist::where('user_id', Auth::id())
+            ->with('product')
+            ->latest()
+            ->get();
+
         return view('wishlist.index', compact('wishlists'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        Wishlist::updateOrCreate([
-            'user_id' => Auth::id(),
-            'product_id' => $product->id,
-        ]);
-
-        return redirect()->back()->with('success', 'Wishlist created successfully.');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // รับ product_id จากฟอร์ม
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'product_id' => ['required','integer','exists:products,product_id'],
+        ]);
+
+        Wishlist::updateOrCreate(
+            ['user_id' => Auth::id(), 'product_id' => $data['product_id']],
+            ['wishlist_date' => now()]
+        );
+
+        return back()->with('success', 'เพิ่มลง Wishlist แล้ว');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Wishlist $wishlist)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Wishlist $wishlist)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Wishlist $wishlist)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Wishlist $wishlist)
+    // รับ product_id จากพารามิเตอร์ URL
+    public function destroy($product_id)
     {
         Wishlist::where('user_id', Auth::id())
-                ->where('product_id', $product->id)
-                ->delete();
+            ->where('product_id', $product_id)
+            ->delete();
 
-        return redirect()->back()->with('success', 'Wishlist deleted.');
+        return back()->with('success', 'นำออกจาก Wishlist แล้ว');
     }
 }
+
