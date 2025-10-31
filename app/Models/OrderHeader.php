@@ -9,16 +9,25 @@ class OrderHeader extends Model
 {
     use HasFactory;
 
+    protected $table = 'order_headers';
+    protected $primaryKey = 'order_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'card_id',
         'user_id',
         'order_date',
         'order_method',
         'status',
-        'total_price',
+        'total_price'
     ];
 
-    // --- Relationships ---
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -27,10 +36,5 @@ class OrderHeader extends Model
     public function card()
     {
         return $this->belongsTo(Card::class, 'card_id');
-    }
-
-    public function orderDetails()
-    {
-        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 }

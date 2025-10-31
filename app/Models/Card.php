@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Card extends Model
 {
     use HasFactory;
-
+    protected $table = 'cards';
     protected $primaryKey = 'card_id';
     public $incrementing = true;
     protected $keyType = 'int';

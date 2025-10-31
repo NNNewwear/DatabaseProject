@@ -71,6 +71,7 @@ Route::middleware('auth')->get('/fe/orders', function () {
 
 // ====== ROUTES เดิมของโปรเจกต์ (คงโครงเดิม, เพิ่ม use ให้ครบ) ======
 Route::middleware('auth')->group(function () {
+    // Profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/image', [ProfileController::class, 'editImage'])->name('profile.image');
@@ -78,33 +79,35 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Resources ที่ไม่ชนชื่อ
     Route::resource('cards', CardController::class)->only(['index','store','destroy']);
     Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::resource('orders', OrderController::class)->only(['index','show','store']);
-    Route::resource('orderdetails', OrderDetailController::class)->only(['index','destroy']);
-    Route::resource('products', ProductController::class); // เดิม (ต้องล็อกอิน)
-    /*Route::resource('wishlist', WishlistController::class)->only(['index','store','destroy']);*/
+    Route::resource('products', ProductController::class);
 
+    // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
-    // Order = ตะกร้า
-    Route::get('/order', [OrderController::class, 'index'])->name('orders.cart');
-    Route::post('/order/add/{product}', [OrderController::class, 'addProduct'])->name('orders.add');
-    Route::patch('/order/update/{detail}', [OrderController::class, 'updateProduct'])->name('orders.update');
-    Route::delete('/order/remove/{detail}', [OrderController::class, 'removeProduct'])->name('orders.remove');
+    /* ---------- Orders (แยกชัดเจน ไม่ใช้ resource เพื่อตัดชน) ---------- */
 
-    // Checkout
-    Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
+    // หน้า "ตะกร้า" (cart only)
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
-    // ประวัติคำสั่งซื้อ
+    // ประวัติคำสั่งซื้อ (delivering/placed/completed)
     Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+
+    // แสดงออเดอร์เดี่ยว
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
-    // รายการสินค้าในออเดอร์
-    Route::get('/orders/{order}/details', [OrderDetailController::class, 'index'])->name('orders.details');
-    
+    // การจัดการรายการในตะกร้า
+    Route::post('/order/add/{product}', [OrderController::class, 'addToOrder'])->name('orders.add');
+    Route::patch('/order/detail/{detail}/decrement', [OrderController::class, 'decrementQty'])->name('orders.detail.decrement');
+    Route::delete('/order/detail/{detail}', [OrderController::class, 'removeItem'])->name('orders.detail.destroy');
+
+    // Checkout flow
+    Route::get('/checkout',  [OrderController::class, 'checkoutPage'])->name('orders.checkout.page'); // ดูฟอร์ม
+    Route::post('/checkout', [OrderController::class, 'placeOrder'])->name('orders.checkout');  // ✅ ชื่อที่ถูกต้อง
 });
 
 require __DIR__.'/auth.php';

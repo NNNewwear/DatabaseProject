@@ -10,7 +10,8 @@ class OrderDetailController extends Controller
     public function index(OrderHeader $order)
     {
         abort_if($order->user_id !== Auth::id(), 403);
-        $details = $order->details()->with('product')->get();
-        return view('orders.details', compact('order','details'));
+        // ใช้ชื่อความสัมพันธ์ให้ตรงกับโมเดล: orderDetails
+        $details = $order->orderDetails()->with('product')->get();
+        return view('orders.details', compact('order', 'details'));
     }
 }
