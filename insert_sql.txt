@@ -13,7 +13,7 @@ INSERT INTO products (category_id, name, description, price, stock_quantity, ima
 (2, 'Kids Red Bicycle', 'จักรยานเด็กอายุ 5-8 ปี โครงเหล็กแข็งแรง', 1800, 10, 'products/red_bicycle.jpg'),
 (3, 'Color Blocks 500', 'ตัวต่อเสริมพัฒนาการ 500 ชิ้น เหมาะสำหรับเด็กเล็ก', 320, 35, 'products/building_blocks.jpg'),
 (4, 'Mini Sports Car', 'รถแข่งของเล่นคันเล็ก สีแดงเงาวับ', 690, 25, 'products/mini_sports_car.jpg'),
-(5, 'Cute Plush Bunny', 'ตุ๊กตากระต่ายนุ่มนิ่ม สีชมพูสุดน่ารัก', 390, 40, 'products/plush_bunny.jpg'),
+(6, 'Cute Plush Bunny', 'ตุ๊กตากระต่ายนุ่มนิ่ม สีชมพูสุดน่ารัก', 390, 40, 'products/plush_bunny.jpg'),
 (7, 'Classic Chess Set', 'ชุดหมากรุกไม้แบบคลาสสิก เหมาะเล่นได้ทุกวัย', 590, 15, 'products/chess_board.jpg'),
 (8, 'Kids Football', 'ลูกฟุตบอลขนาดเล็กสำหรับเด็ก วัสดุทนทาน', 350, 30, 'products/football.jpg'),
 (2, 'Blue Mountain Bicycle', 'จักรยานเด็กแนวสปอร์ต สีฟ้าโครงเหล็ก', 2100, 8, 'products/blue_bicycle.jpg'),
