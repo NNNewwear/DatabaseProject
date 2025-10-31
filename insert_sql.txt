@@ -1,0 +1,29 @@
+INSERT INTO categories (category_id, name, image_url) VALUES
+(1,'ฟิกเกอร์', 'homepage/figure.png'),
+(2,'จักรยาน', 'homepage/bicycle.png'),
+(3,'ตัวต่อ', 'homepage/lego.png'),
+(4,'รถ', 'homepage/car.png'),
+(5,'เด็ก', 'homepage/kids.png'),
+(6,'ตุ๊กตา', 'homepage/plushies.png'),
+(7,'บอร์ดเกม', 'homepage/boardgames.png'),
+(8,'กีฬา', 'homepage/sports.png');
+
+INSERT INTO products (category_id, name, description, price, stock_quantity, image_url) VALUES
+(1, 'Spider-Man Figure', 'ฟิกเกอร์สไปเดอร์แมน รุ่นสะสม ขยับได้หลายท่า', 450, 20, 'products/spiderman_figure.jpg'),
+(2, 'Kids Red Bicycle', 'จักรยานเด็กอายุ 5-8 ปี โครงเหล็กแข็งแรง', 1800, 10, 'products/red_bicycle.jpg'),
+(3, 'Color Blocks 500', 'ตัวต่อเสริมพัฒนาการ 500 ชิ้น เหมาะสำหรับเด็กเล็ก', 320, 35, 'products/building_blocks.jpg'),
+(4, 'Mini Sports Car', 'รถแข่งของเล่นคันเล็ก สีแดงเงาวับ', 690, 25, 'products/mini_sports_car.jpg'),
+(5, 'Cute Plush Bunny', 'ตุ๊กตากระต่ายนุ่มนิ่ม สีชมพูสุดน่ารัก', 390, 40, 'products/plush_bunny.jpg'),
+(7, 'Classic Chess Set', 'ชุดหมากรุกไม้แบบคลาสสิก เหมาะเล่นได้ทุกวัย', 590, 15, 'products/chess_board.jpg'),
+(8, 'Kids Football', 'ลูกฟุตบอลขนาดเล็กสำหรับเด็ก วัสดุทนทาน', 350, 30, 'products/football.jpg'),
+(2, 'Blue Mountain Bicycle', 'จักรยานเด็กแนวสปอร์ต สีฟ้าโครงเหล็ก', 2100, 8, 'products/blue_bicycle.jpg'),
+(5, 'Educational Puzzle', 'จิ๊กซอว์ฝึกสมอง ลายสัตว์โลกน่ารัก', 260, 22, 'products/animal_puzzle.jpg'),
+(3, 'Mega Block Castle', 'ชุดตัวต่อปราสาทใหญ่ 1000 ชิ้น', 750, 18, 'products/mega_castle_blocks.jpg'),
+(7, 'Monopoly Board Game', 'เกมเศรษฐีรุ่นคลาสสิก เล่นได้ทั้งครอบครัว', 890, 12, 'products/monopoly.jpg'),
+(1, 'Iron Man Figure', 'ฟิกเกอร์ไอรอนแมน ข้อต่อได้หลายจุด', 480, 25, 'products/ironman_figure.jpg'),
+(4, 'Racing RC Car', 'รถบังคับความเร็วสูง แบตชาร์จได้', 1290, 9, 'products/rc_car.jpg'),
+(8, 'Mini Basketball Set', 'ชุดห่วงบาสขนาดเล็กติดผนัง', 450, 18, 'products/basketball_set.jpg'),
+(3, 'Color Bricks Junior', 'ตัวต่อสีสันสดใสสำหรับเด็กเล็ก', 290, 40, 'products/color_bricks_junior.jpg'),
+(7, 'UNO Card Game', 'การ์ดเกมยอดนิยม เล่นได้ทั้งกลุ่ม', 250, 50, 'products/uno_cards.jpg'),
+(5, 'Math Learning Toy', 'ของเล่นสอนนับเลขและรูปทรงเรขาคณิต', 340, 20, 'products/math_learning_toy.jpg'),
+(8, 'Toy Tennis Racket Set', 'ชุดไม้เทนนิสของเล่นพร้อมลูกบอล', 380, 15, 'products/toy_tennis.jpg');
