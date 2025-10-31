@@ -1,37 +1,63 @@
 <x-app-layout>
-<div class="mx-auto max-w-6xl px-4">
-  <!-- <h1 class="text-2xl font-semibold mb-4">Products</h1> -->
+  <div class="mx-auto max-w-6xl px-4 mt-6">
 
-  <!-- <form method="GET" class="mb-6 flex flex-col md:flex-row gap-3">
-    <input name="search" value="{{ request('search') }}" placeholder="ค้นหาสินค้า..."
-           class="w-full md:w-72 rounded-xl border px-3 py-2">
-    <select name="category_id" class="w-full md:w-56 rounded-xl border px-3 py-2">
-      <option value="">ทุกหมวดหมู่</option>
-      @foreach($categories as $c)
-        <option value="{{ $c->category_id }}" @selected(request('category_id')==$c->category_id)>{{ $c->name }}</option>
-      @endforeach
-    </select>
-    <button class="rounded-xl px-4 py-2 bg-gray-900 text-white">ค้นหา</button>
-  </form> -->
+    {{-- Layout: left sidebar + right product grid --}}
+    <div class="flex gap-6">
 
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    @foreach($products as $p)
-      <a href="{{ route('fe.products.show',$p->product_id) }}"
-         class="group block rounded-2xl border bg-white hover:shadow transition">
-        <div class="aspect-video w-full overflow-hidden rounded-t-2xl {{ $p->image_url ? '' : 'bg-[#dfeefb]' }}">
-          @if($p->image_url)
-            <img src="{{ $p->image_url }}" class="w-full h-full object-cover" alt="">
-          @endif
+      {{-- Sidebar --}}
+      <aside class="md:w-60 w-60 md:sticky md:top-20">
+        <div class="bg-white border rounded-2xl overflow-hidden">
+          <div class="px-4 py-3 font-semibold">หมวดหมู่</div>
+
+          {{-- Mobile: horizontal scroll / Desktop: vertical list --}}
+          <nav class="flex flex-col border-t">
+            <a href="{{ route('fe.products.index') }}"
+               class="px-4 py-3 md:block whitespace-nowrap
+                 {{ request()->missing('category_id') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50' }}">
+              ทั้งหมด
+            </a>
+
+            @foreach($categories as $c)
+              <a href="{{ route('fe.products.index', ['category_id' => $c->category_id]) }}"
+                 class="px-4 py-3 md:block whitespace-nowrap
+                   {{ (string)request('category_id') === (string)$c->category_id
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-50' }}">
+                {{ $c->name }}
+              </a>
+            @endforeach
+          </nav>
         </div>
-        <div class="p-3">
-          <div class="font-semibold group-hover:underline line-clamp-1">{{ $p->name }}</div>
-          <div class="text-sm text-gray-500">{{ $p->category->name ?? '-' }}</div>
-          <div class="mt-1 font-semibold">฿{{ number_format($p->price,2) }}</div>
+      </aside>
+
+      {{-- Products --}}
+      <main class="flex-1">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          @foreach ($products as $p)
+            <a href="{{ route('fe.products.show', $p->product_id) }}"
+               class="group block rounded-2xl border bg-white overflow-hidden hover:shadow transition flex flex-col">
+              <div class="w-full h-60 bg-white flex items-center justify-center overflow-hidden {{ $p->image_url ? '' : 'bg-[#dfeefb]' }}">
+                @if($p->image_url)
+                  <img src="{{ asset('storage/'.$p->image_url) }}"
+                       class="w-full h-full object-cover" alt="{{ $p->name }}">
+                @endif
+              </div>
+
+              <div class="flex flex-col grow p-3">
+                <div class="min-h-[3.5rem]">
+                  <div class="font-semibold group-hover:underline line-clamp-1">{{ $p->name }}</div>
+                  <div class="text-sm text-gray-500">{{ $p->category->name ?? '-' }}</div>
+                </div>
+                <div class="mt-auto font-semibold">฿{{ number_format($p->price, 2) }}</div>
+              </div>
+            </a>
+          @endforeach
         </div>
-      </a>
-    @endforeach
+
+        {{-- Keep current filters in pagination links --}}
+        <div class="mt-6">{{ $products->appends(request()->query())->links() }}</div>
+      </main>
+
+    </div>
   </div>
-
-  <div class="mt-6">{{ $products->links() }}</div>
-</div>
 </x-app-layout>

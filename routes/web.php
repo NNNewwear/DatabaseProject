@@ -21,7 +21,7 @@ use App\Models\OrderHeader;
 
 // ====== หน้าเริ่มต้นของโปรเจกต์ (คงไว้ตามเดิม) ======
 Route::get('/', function () {
-    $categories = Category::select('category_id','name')->orderBy('category_id')->get();
+    $categories = Category::select('category_id','name','image_url')->orderBy('category_id')->get();
     return view('homepage', compact('categories'));
 })->name('homepage');
 
@@ -29,8 +29,8 @@ Route::get('/', function () {
 
 // Product List (public)
 Route::get('/fe/products', function () {
-    $categories = Category::orderBy('name')->get(['category_id','name']);
-    $q = Product::with('category')->latest();
+    $categories = Category::orderBy('category_id')->get(['category_id','name']);
+    $q = Product::with('category')->orderBy('product_id', 'asc');
 
     if (request('category_id')) $q->where('category_id', request('category_id'));
     if (request('search'))      $q->where('name','like','%'.request('search').'%');
