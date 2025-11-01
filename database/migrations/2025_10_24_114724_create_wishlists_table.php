@@ -12,10 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wishlists', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('product_id')->references('product_id')->on('products')->onDelete('cascade');
-            $table->date('wishlist_date');
+            // Foreign Keys
+            $table->foreignId('user_id')
+                  ->constrained('users')
+                  ->onDelete('cascade')
+                  ->index(); // เพิ่ม index 
+
+            $table->foreignId('product_id')
+                  ->references('product_id')
+                  ->on('products')
+                  ->onDelete('cascade')
+                  ->index(); // เพิ่ม index 
+
+            // วันที่เพิ่มใน wishlist
+            $table->date('wishlist_date')->index(); // ✅ ใช้บ่อย (เช่น เรียงตามเวลา)
+
+            // Composite Primary Key
             $table->primary(['user_id', 'product_id']);
+
             $table->timestamps();
         });
     }

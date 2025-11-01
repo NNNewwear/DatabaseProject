@@ -34,44 +34,42 @@ class OrderController extends Controller
 {
     $qty = max(1, (int) $request->input('qty', 1));
 
-    // หา/สร้างออเดอร์ของ user ที่ยังเป็นตะกร้า
-    $order = OrderHeader::firstOrCreate(
-        ['user_id' => Auth::id(), 'status' => 'cart'],
-        [
-            'order_date'   => now(),
-            
-            'total_price'  => 0,
-        ]
-    );
+    DB::transaction(function () use ($qty, $product) {
+        // หา/สร้างออเดอร์ของ user ที่ยังเป็นตะกร้า
+        $order = OrderHeader::firstOrCreate(
+            ['user_id' => Auth::id(), 'status' => 'cart'],
+            ['order_date' => now(), 'total_price' => 0]
+        );
 
-    $orderId = $order->order_id; // primary key ตาม ERD
+        $orderId = $order->order_id;
 
-    // หา detail เดิมของสินค้านี้
-    $detail = OrderDetail::where('order_id', $orderId)
-        ->where('product_id', $product->product_id)
-        ->first();
+        // หา detail เดิมของสินค้านี้
+        $detail = OrderDetail::where('order_id', $orderId)
+            ->where('product_id', $product->product_id)
+            ->lockForUpdate() // กันแข่งกันเขียนในรายการเดียวกัน
+            ->first();
 
-    if ($detail) {
-        $newQty = $detail->total_amount + $qty;
-        $detail->update([
-            'total_amount' => $newQty,
-            'total_price'  => $newQty * $product->price,
+        if ($detail) {
+            $newQty = $detail->total_amount + $qty;
+            $detail->update([
+                'total_amount' => $newQty,
+                'total_price'  => $newQty * $product->price,
+            ]);
+        } else {
+            OrderDetail::create([
+                'order_id'     => $orderId,
+                'product_id'   => $product->product_id,
+                'total_amount' => $qty,
+                'total_price'  => $qty * $product->price,
+            ]);
+        }
+
+        // อัปเดตราคารวมของหัวออเดอร์
+        $order->update([
+            'total_price' => $order->orderDetails()->sum('total_price'),
         ]);
-    } else {
-        OrderDetail::create([
-            'order_id'     => $orderId,
-            'product_id'   => $product->product_id,
-            'total_amount' => $qty,
-            'total_price'  => $qty * $product->price,
-        ]);
-    }
+    });
 
-    // อัปเดตราคารวมของหัวออเดอร์
-    $order->update([
-        'total_price' => $order->orderDetails()->sum('total_price'),
-    ]);
-
-    // <<< อย่าใส่โค้ดใด ๆ หลังจากนี้ในระดับ class >>>
     return back()->with('success', 'เพิ่มสินค้าในออเดอร์แล้ว');
 }
 
@@ -82,34 +80,50 @@ class OrderController extends Controller
         abort_if($detail->order->user_id !== Auth::id(), 403);
 
         $qty = max(1, (int) $request->input('qty', 1));
-        $detail->update([
-            'total_amount' => $qty,
-            'total_price'  => $qty * $detail->product->price,
-        ]);
 
-        // อัปเดตราคารวมของหัวออเดอร์
-        $order = $detail->order;
-        $order->update([
-            'total_price' => $order->orderDetails()->sum('total_price'),
-        ]);
+        DB::transaction(function () use ($detail, $qty) {
+            // ล็อกแถว detail ปัจจุบัน
+            $d = OrderDetail::where('order_id', $detail->order_id)
+                ->where('product_id', $detail->product_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $d->update([
+                'total_amount' => $qty,
+                'total_price'  => $qty * $d->product->price,
+            ]);
+
+            $order = $d->order()->lockForUpdate()->first();
+            $order->update([
+                'total_price' => $order->orderDetails()->sum('total_price'),
+            ]);
+        });
 
         return back()->with('success', 'อัปเดตจำนวนแล้ว');
     }
+
 
     // ลบรายการสินค้าในออเดอร์ (ตัวอย่าง)
     public function removeItem(OrderDetail $detail)
     {
         abort_if($detail->order->user_id !== Auth::id(), 403);
 
-        $order = $detail->order;
-        $detail->delete();
+        DB::transaction(function () use ($detail) {
+            $orderId = $detail->order_id;
 
-        $order->update([
-            'total_price' => $order->orderDetails()->sum('total_price'),
-        ]);
+            // ล็อก order ก่อนคำนวณยอดรวม
+            $order = OrderHeader::where('order_id', $orderId)->lockForUpdate()->firstOrFail();
+
+            $detail->delete();
+
+            $order->update([
+                'total_price' => $order->orderDetails()->sum('total_price'),
+            ]);
+        });
 
         return back()->with('success', 'ลบสินค้าแล้ว');
     }
+
 
     // ยืนยันสั่งซื้อ (เช็คเอาท์)
     /*public function checkout(Request $request)
@@ -171,32 +185,35 @@ class OrderController extends Controller
             'qty' => 'required|integer|min:1',
         ]);
 
-        $remove = $data['qty'];
-        $current = (int) $detail->total_amount;
+        DB::transaction(function () use ($detail, $data) {
+            $d = OrderDetail::where('order_id', $detail->order_id)
+                ->where('product_id', $detail->product_id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        // คำนวณจำนวนใหม่
-        $newQty = max(0, $current - $remove);
+            $remove  = $data['qty'];
+            $current = (int) $d->total_amount;
+            $newQty  = max(0, $current - $remove);
 
-        if ($newQty === 0) {
-            // ลบทั้งรายการถ้าจำนวนเหลือ 0
-            $order = $detail->order;
-            $detail->delete();
-        } else {
-            // อัปเดตจำนวนและราคารวมของรายการนี้
-            $detail->update([
-                'total_amount' => $newQty,
-                'total_price'  => $newQty * $detail->product->price,
+            $order = OrderHeader::where('order_id', $d->order_id)->lockForUpdate()->firstOrFail();
+
+            if ($newQty === 0) {
+                $d->delete();
+            } else {
+                $d->update([
+                    'total_amount' => $newQty,
+                    'total_price'  => $newQty * $d->product->price,
+                ]);
+            }
+
+            $order->update([
+                'total_price' => $order->orderDetails()->sum('total_price'),
             ]);
-            $order = $detail->order;
-        }
-
-        // อัปเดตยอดรวมของออเดอร์เสมอ
-        $order->update([
-            'total_price' => $order->orderDetails()->sum('total_price'),
-        ]);
+        });
 
         return back()->with('success', 'อัปเดตจำนวนสินค้าแล้ว');
     }
+
 
     public function checkoutPage()
     {
@@ -231,35 +248,59 @@ class OrderController extends Controller
         'phone'       => 'required|string|max:30',
         'card_id'     => [
             'required',
-            \Illuminate\Validation\Rule::exists('cards', 'card_id')->where('user_id', \Illuminate\Support\Facades\Auth::id()),
+            Rule::exists('cards', 'card_id')->where('user_id', Auth::id()),
         ],
     ]);
 
-    $order = \App\Models\OrderHeader::where('user_id', \Illuminate\Support\Facades\Auth::id())
-        ->where('status', 'cart')
-        ->with('orderDetails.product')
-        ->first();
+    $payload = [];
 
-    if (!$order || $order->orderDetails->isEmpty()) {
-        return redirect()->route('orders.checkout.page')->with('error', 'ตะกร้าว่าง');
-    }
+    DB::transaction(function () use ($request, &$payload) {
+        $order = OrderHeader::where('user_id', Auth::id())
+            ->where('status', 'cart')
+            ->with('orderDetails.product')
+            ->lockForUpdate() // ล็อก order นี้ทั้งหัว
+            ->first();
 
-    $total = $order->orderDetails()->sum('total_price');
+        if (!$order || $order->orderDetails->isEmpty()) {
+            throw new \Exception('ตะกร้าว่าง');
+        }
 
-    $order->update([
-        'order_date'   => now(),
-        'status'       => 'delivering',
-        'total_price'  => $total,
-    ]);
+        $total = $order->orderDetails()->sum('total_price');
+
+        // (ตัวอย่าง) ตัดสต็อกแบบเช็คก่อน
+        foreach ($order->orderDetails as $d) {
+            $product = Product::where('product_id', $d->product_id)->lockForUpdate()->firstOrFail();
+
+            if ($product->stock_quantity < $d->total_amount) {
+                throw new \Exception("สินค้า {$product->name} มีไม่พอในสต็อก");
+            }
+        }
+        // ผ่านทุกตัว -> ตัดสต็อกจริง
+        foreach ($order->orderDetails as $d) {
+            $product = Product::where('product_id', $d->product_id)->lockForUpdate()->firstOrFail();
+            $product->decrement('stock_quantity', $d->total_amount);
+        }
+
+        // อัปเดตคำสั่งซื้อ
+        $order->update([
+            'order_date'   => now(),
+            'status'       => 'delivering', // or 'placed'
+            'total_price'  => $total,
+            'card_id'      => (int) $request->card_id, // ถ้ามีคอลัมน์ในตาราง
+            'order_method' => 'card',                   // ปรับตามที่ใช้จริง
+        ]);
+
+        $payload = [
+            'order_id' => $order->order_id,
+            'total'    => $total,
+            'status'   => $order->status,
+        ];
+    });
 
     return redirect()
         ->route('orders.history')
         ->with('success', 'สั่งซื้อสำเร็จ กำลังจัดส่ง')
-        ->with('order_success', [
-            'order_id' => $order->order_id,
-            'total'    => $total,
-            'status'   => 'delivering',
-        ]);
+        ->with('order_success', $payload);
 }
 
 }
